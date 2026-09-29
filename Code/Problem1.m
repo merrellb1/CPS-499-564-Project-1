@@ -2,6 +2,9 @@ close all;
 clear all;
 clc;
 
+
+
+
 % testing
 R = imread('1_HW1_1.jpg');
 G = imread('1_HW1_2.jpg');
@@ -41,3 +44,8 @@ function restored_channel = restore_channel(manipulated, ref1, ref2)
 
     restored_channel = manipulated;
 end
+=======
+function rgb = combine_rgb(R,G,B)
+    rgb = cat(3,R,G,B);
+end
+>>>>>>> main

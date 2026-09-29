@@ -6,39 +6,53 @@ clc;
 
 
 % testing
-R = imread('1_HW1_1.jpg');
-G = imread('1_HW1_2.jpg');
-B = imread('1_HW1_3.jpg');
-figure,imshow(R);
-figure,imshow(G);
-figure,imshow(B);
+R = imread('RGB Data\RGB Data\6_HW1_1.jpg');
+G = imread('RGB Data\RGB Data\6_HW1_2.jpg');
+B = imread('RGB Data\RGB Data\6_HW1_3.jpg');
 
-img_rgb = cat(3,R,G,B);
+[l,w] = size(R);
+zero = zeros(l,w);
+
+figure,imshow(combine_rgb(R,zero,zero));
+figure,imshow(combine_rgb(zero,G,zero));
+figure,imshow(combine_rgb(zero,zero,B));
+
+img_rgb = combine_rgb(R,G,B);
 figure,imshow(img_rgb);
 
 
+B = restore_channel(R,G,B);
+figure,imshow(combine_rgb(R,G,B));
+
+
+
+
 function restored_channel = restore_channel(manipulated, ref1, ref2)
+    manipulated = double(manipulated);
+    ref1 = double(ref1);
+    ref2 = double(ref2);
     % Use two good channels to restore the manipulated one
     dif1 = manipulated-ref1; % manipulated = dif1 + ref1
     dif2 = manipulated-ref2;
 
     
     % try gaussian filter to smooth out differences
-    kernel_size = 5;
-    gaussian_kernel = fspecial('gaussian',[kernel_size kernel_size],5);
-    dif1_smooth = dif1*gaussian_kernel;
-    dif2_smooth = dif2*gaussian_kernel;
+    sigma = 10;
+    dif1_smooth = imgaussfilt(dif1,sigma);
+    dif2_smooth = imgaussfilt(dif2,sigma);
 
     % solutions
     sol1 = dif1_smooth + ref1;
     sol2 = dif2_smooth + ref2;
     
-    figure,imshow(dif1);
-    figure,imshow(dif1_smooth);
-    figure,imshow(sol1);
+    %dif_good = imgaussfilt(ref1,sigma) - imgaussfilt(ref2,sigma);
+    
+    sol = sol1/2 + sol2/2;
+    
 
+    
 
-    restored_channel = manipulated;
+    restored_channel = sol;
 end
 
 function rgb = combine_rgb(R,G,B)

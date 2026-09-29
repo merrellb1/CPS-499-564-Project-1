@@ -16,10 +16,6 @@ figure,imshow(B);
 img_rgb = cat(3,R,G,B);
 figure,imshow(img_rgb);
 
-function rgb = combine_rgb(R,G,B)
-    rgb = cat(3,R,G,B);
-end
-
 
 function restored_channel = restore_channel(manipulated, ref1, ref2)
     % Use two good channels to restore the manipulated one
@@ -44,8 +40,8 @@ function restored_channel = restore_channel(manipulated, ref1, ref2)
 
     restored_channel = manipulated;
 end
-=======
+
 function rgb = combine_rgb(R,G,B)
     rgb = cat(3,R,G,B);
 end
->>>>>>> main
+

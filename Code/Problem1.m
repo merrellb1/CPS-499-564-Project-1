@@ -13,7 +13,9 @@ figure,imshow(B);
 img_rgb = cat(3,R,G,B);
 figure,imshow(img_rgb);
 
-
+function rgb = combine_rgb(R,G,B)
+    rgb = cat(3,R,G,B);
+end
 
 
 function restored_channel = restore_channel(manipulated, ref1, ref2)

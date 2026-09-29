@@ -6,18 +6,22 @@ clc;
 
 
 % testing
-R = imread('RGB Data\RGB Data\6_HW1_1.jpg');
-G = imread('RGB Data\RGB Data\6_HW1_2.jpg');
-B = imread('RGB Data\RGB Data\6_HW1_3.jpg');
-figure,imshow(combine_rgb(R,0,0));
-figure,imshow(G);
-figure,imshow(B);
+R = imread('RGB Data\RGB Data\3_HW1_1.jpg');
+G = imread('RGB Data\RGB Data\3_HW1_2.jpg');
+B = imread('RGB Data\RGB Data\3_HW1_3.jpg');
+
+[l,w] = size(R);
+zero = zeros(l,w);
+
+figure,imshow(combine_rgb(R,zero,zero));
+figure,imshow(combine_rgb(zero,G,zero));
+figure,imshow(combine_rgb(zero,zero,B));
 
 img_rgb = combine_rgb(R,G,B);
 figure,imshow(img_rgb);
 
 
-B = restore_channel(R,G,B);
+G = restore_channel(R,G,B);
 figure,imshow(combine_rgb(R,G,B));
 
 
@@ -44,10 +48,6 @@ function restored_channel = restore_channel(manipulated, ref1, ref2)
     %dif_good = imgaussfilt(ref1,sigma) - imgaussfilt(ref2,sigma);
     
     sol = sol1/2 + sol2/2;
-    
-
-    
-
     restored_channel = sol;
 end
 

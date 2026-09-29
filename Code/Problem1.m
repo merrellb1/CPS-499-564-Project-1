@@ -6,9 +6,9 @@ clc;
 
 
 % testing
-R = imread('RGB Data\RGB Data\6_HW1_1.jpg');
-G = imread('RGB Data\RGB Data\6_HW1_2.jpg');
-B = imread('RGB Data\RGB Data\6_HW1_3.jpg');
+R = imread('RGB Data\RGB Data\3_HW1_1.jpg');
+G = imread('RGB Data\RGB Data\3_HW1_2.jpg');
+B = imread('RGB Data\RGB Data\3_HW1_3.jpg');
 
 [l,w] = size(R);
 zero = zeros(l,w);
@@ -21,7 +21,7 @@ img_rgb = combine_rgb(R,G,B);
 figure,imshow(img_rgb);
 
 
-B = restore_channel(R,G,B);
+G = restore_channel(R,G,B);
 figure,imshow(combine_rgb(R,G,B));
 
 
@@ -31,7 +31,8 @@ function restored_channel = restore_channel(manipulated, ref1, ref2)
     manipulated = double(manipulated);
     ref1 = double(ref1);
     ref2 = double(ref2);
-    % Use two good channels to restore the manipulated one
+    
+    % Find differences between
     dif1 = manipulated-ref1; % manipulated = dif1 + ref1
     dif2 = manipulated-ref2;
 
@@ -48,10 +49,6 @@ function restored_channel = restore_channel(manipulated, ref1, ref2)
     %dif_good = imgaussfilt(ref1,sigma) - imgaussfilt(ref2,sigma);
     
     sol = sol1/2 + sol2/2;
-    
-
-    
-
     restored_channel = sol;
 end
 

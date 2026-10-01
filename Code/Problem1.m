@@ -3,68 +3,38 @@ clear all;
 clc;
 
 
+%2 is wrong but everything else works will tweak things to make it more
+%accurate
 
+% reading images
+n = "3"; % image number 1-10
+img1r = im2double(imread("RGB Data\RGB Data\"+n+"_HW1_1.jpg"));
+img1g = im2double(imread("RGB Data\RGB Data\"+n+"_HW1_2.jpg"));
+img1b = im2double(imread("RGB Data\RGB Data\"+n+"_HW1_3.jpg"));
 
-% testing
-R = imread('RGB Data\RGB Data\3_HW1_1.jpg');
-G = imread('RGB Data\RGB Data\3_HW1_2.jpg');
-B = imread('RGB Data\RGB Data\3_HW1_3.jpg');
-
-[l,w] = size(R);
+% displaying channels and histograms
+[l,w] = size(img1r);
 zero = zeros(l,w);
-
-figure,imshow(combine_rgb(R,zero,zero));
-figure,imshow(combine_rgb(zero,G,zero));
-figure,imshow(combine_rgb(zero,zero,B));
-
-img_rgb = combine_rgb(R,G,B);
-figure,imshow(img_rgb);
-
-
-G = restore_channel(G,R,B);
-figure,imshow(combine_rgb(R,G,B));
+figure, imhist(img1r)
+figure, imshow(combine_rgb(img1r,zero,zero));
+figure, imhist(img1g)
+figure, imshow(combine_rgb(zero,img1g,zero));
+figure, imhist(img1b)
+figure, imshow(combine_rgb(zero,zero,img1b));
 
 
 
+[manipulated_channel conf] = detect_tampering(img1r,img1g,img1b);
 
-function restored_channel = restore_channel(manipulated, ref1, ref2)
-    manipulated = double(manipulated);
-    ref1 = double(ref1);
-    ref2 = double(ref2);
-    
-    % try stretching manipulated channel to full range
-    
-    figure,imhist(manipulated);
-    shift = min(manipulated, [], 'all');
-    figure,imhist(manipulated);
-    manipulated = manipulated - shift;
-    factor = 1.0/max(manipulated, [], 'all');
-    
-    manipulated = manipulated*factor;
-    
-    figure,imhist(manipulated);
-
-    % Differences between bad channel and good channels
-    dif1 = manipulated-ref1; % manipulated = dif1 + ref1
-    dif2 = manipulated-ref2; 
-
-    
-    % try gaussian filter to smooth out differences
-    sigma = 5;
-    dif1_smooth = imgaussfilt(dif1,sigma);
-    dif2_smooth = imgaussfilt(dif2,sigma);
-
-    % solutions
-    sol1 = dif1_smooth + ref1;
-    sol2 = dif2_smooth + ref2;
-    
-    %dif_good = imgaussfilt(ref1,sigma) - imgaussfilt(ref2,sigma);
-    
-    sol = sol1/2 + sol2/2;
-    restored_channel = uint8(sol);
+if (manipulated_channel=='R')
+    restored = restore_channel(img1r,img1g,img1b);
+    figure,imshow(combine_rgb(restored,img1g,img1b));
+elseif (manipulated_channel=='G')
+    restored = restore_channel(img1g,img1r,img1b);
+    figure,imshow(combine_rgb(img1r,restored,img1b));
+elseif (manipulated_channel=='B')
+    restored = restore_channel(img1b,img1g,img1r);
+    figure,imshow(combine_rgb(img1r,img1g,restored));
+else
+    disp("HEY");
 end
-
-function rgb = combine_rgb(R,G,B)
-    rgb = cat(3,R,G,B);
-end
-

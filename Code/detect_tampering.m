@@ -1,19 +1,3 @@
-close all;
-clear all;
-clc;
-
-
-%2 is wrong but everything else works will tweak things to make it more
-%accurate
-img1r = im2double(imread("RGB Data\RGB Data\1_HW1_1.jpg"));
-figure, imhist(img1r)
-figure, imshow(img1r)
-img1g = im2double(imread("RGB Data\RGB Data\1_HW1_2.jpg"));
-figure, imhist(img1g)
-figure, imshow(img1g)
-img1b = im2double(imread("RGB Data\RGB Data\1_HW1_3.jpg"));
-figure, imhist(img1b)
-figure, imshow(img1b)
 function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
     
     
@@ -88,9 +72,9 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
     G_noise_score = mean2(abs(G - G_denoise));
     B_noise_score = mean2(abs(B - B_denoise));
     %Normalize noise score (need to find a way to standardize noise score)
-    R_n_noise_score = R_noise_score
-    G_n_noise_score = G_noise_score
-    B_n_noise_score= B_noise_score
+    R_n_noise_score = R_noise_score;
+    G_n_noise_score = G_noise_score;
+    B_n_noise_score= B_noise_score;
     
     
     %Histogram anaylsis:
@@ -99,13 +83,13 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
     hG = imhist(G)/ numel(G);
     hB = imhist(B)/ numel(B);
     
-    dRG = sum(abs(hR - hG))
-    dRB = sum(abs(hR - hB))
-    dGB = sum(abs(hG - hB))
+    dRG = sum(abs(hR - hG));
+    dRB = sum(abs(hR - hB));
+    dGB = sum(abs(hG - hB));
     
-    R_hist_analysis_score = (dRG + dRB) / 2
-    G_hist_analysis_score = (dRG + dGB) / 2
-    B_hist_analysis_score = (dRB + dGB) / 2
+    R_hist_analysis_score = (dRG + dRB) / 2;
+    G_hist_analysis_score = (dRG + dGB) / 2;
+    B_hist_analysis_score = (dRB + dGB) / 2;
     
     %Get max normalized score for each channel for all tests and return it as
     %a confidence score if it is the highest percentage of all channels
@@ -115,7 +99,7 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
     
     
     if(R_Confidence > G_Confidence && R_Confidence > B_Confidence)
-       manipulated_channel =  "Rasd";
+       manipulated_channel =  'R';
        confidence = R_Confidence;
     elseif(G_Confidence > R_Confidence && G_Confidence > B_Confidence)
        manipulated_channel =  'G';
@@ -124,68 +108,4 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
        manipulated_channel =  'B';
        confidence = B_Confidence;
     end
-end
-
-detect_tampering(img1r,img1g,img1b)
-
-% testing
-% 
-% [l,w] = size(R);
-% zero = zeros(l,w);
-
-% figure,imshow(combine_rgb(R,zero,zero));
-% figure,imshow(combine_rgb(zero,G,zero));
-% figure,imshow(combine_rgb(zero,zero,B));
-
-
-% img_rgb = combine_rgb(R,G,B);
-% figure,imshow(img_rgb);
-
-channels = ['R' 'G' 'B']
-restored = (manipulated_channel,)
-
-
-G = restore_channel(G,R,B);
-figure,imshow(combine_rgb(R,G,B));
-
-
-function restored_channel = restore_channel(manipulated, ref1, ref2)
-manipulated = double(manipulated);
-ref1 = double(ref1);
-ref2 = double(ref2);
-
-% try stretching manipulated channel to full range
-
-figure,imhist(manipulated);
-shift = min(manipulated, [], 'all');
-figure,imhist(manipulated);
-manipulated = manipulated - shift;
-factor = 1.0/max(manipulated, [], 'all');
-
-manipulated = manipulated*factor;
-
-figure,imhist(manipulated);
-
-% Differences between bad channel and good channels
-dif1 = manipulated-ref1; % manipulated = dif1 + ref1
-dif2 = manipulated-ref2; 
-
-
-% try gaussian filter to smooth out differences
-sigma = 5;
-dif1_smooth = imgaussfilt(dif1,sigma);
-dif2_smooth = imgaussfilt(dif2,sigma);
-
-% solutions
-sol1 = dif1_smooth + ref1;
-sol2 = dif2_smooth + ref2;
-
-%dif_good = imgaussfilt(ref1,sigma) - imgaussfilt(ref2,sigma);
-
-sol = sol1/2 + sol2/2;
-restored_channel = uint8(sol);
-end
-
-function rgb = combine_rgb(R,G,B)
-rgb = cat(3,R,G,B);
 end

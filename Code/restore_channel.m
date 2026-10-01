@@ -16,11 +16,9 @@ function restored_channel = restore_channel(manipulated, ref1, ref2)
     % solutions
     sol1 = dif1_smooth + ref1;
     sol2 = dif2_smooth + ref2;
-    
-    dif_good = imgaussfilt(ref1,sigma) - imgaussfilt(ref2,sigma);
-    
     sol = sol1/2 + sol2/2;
+
     %restored_channel = uint8(sol);
-    %restored_channel = sol;
-    restored_channel = ref1 + dif_good;
+    restored_channel = sol/3 + ref1/3 + ref2/3;
+
 end

@@ -60,7 +60,7 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
 
     %Noise Test: (seems useless in these test cases and need to fix this test)
     
-    gaussian_kernel = fspecial('gaussian', [3 3],1);
+    gaussian_kernel = fspecial('gaussian', [7 7],1.5);
     R_denoise = imfilter(R,gaussian_kernel,"replicate");
     G_denoise = imfilter(G,gaussian_kernel,"replicate");
     B_denoise = imfilter(B,gaussian_kernel,"replicate");
@@ -68,22 +68,20 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
 
     %Calculates noise score by finding the average distance between filtered
     %channel and the original channel
-    R_noise_score = mean2(abs(R - R_denoise));
-    G_noise_score = mean2(abs(G - G_denoise));
-    B_noise_score = mean2(abs(B - B_denoise));
+    R_noise_score = std2(R - R_denoise);
+    G_noise_score = std2(G - G_denoise);
+    B_noise_score = std2(B - B_denoise);
+    
     %Normalize noise score (need to find a way to standardize noise score)
-    R_n_noise_score = R_noise_score;
-    G_n_noise_score = G_noise_score;
-    B_n_noise_score = B_noise_score;
-    
-    
+    total_noise_score = R_noise_score + G_noise_score + B_noise_score;
+    R_n_noise_score = R_noise_score / total_noise_score;
+    G_n_noise_score = G_noise_score / total_noise_score;
+    B_n_noise_score = B_noise_score / total_noise_score;
+   
 
-    
-    %Get max normalized score for each channel for all tests and return it as
-    %a confidence score if it is the highest percentage of all channels
-    R_Confidence = max(R_n_noise_score,R_hist_analysis_score);
-    G_Confidence = max(G_n_noise_score,G_hist_analysis_score);
-    B_Confidence = max(B_n_noise_score,B_hist_analysis_score);
+    R_Confidence = R_hist_analysis_score * (2/3) + R_n_noise_score * (1/3)
+    G_Confidence = G_hist_analysis_score * (2/3) + G_n_noise_score * (1/3)
+    B_Confidence = B_hist_analysis_score * (2/3) + B_n_noise_score * (1/3)
     
     %Compares Confidence values to determine which channel is most likely
     %to be tampered with and return it with the correct confidence score.

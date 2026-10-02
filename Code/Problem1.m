@@ -21,8 +21,6 @@ figure, imshow(combine_rgb(zero,img1g,zero));
 figure, imhist(img1b)
 figure, imshow(combine_rgb(zero,zero,img1b));
 
-
-
 [manipulated_channel conf] = detect_tampering(img1r,img1g,img1b)
 
 if (manipulated_channel=='R')

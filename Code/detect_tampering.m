@@ -1,92 +1,54 @@
 function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
-    %Mean test:
-    %Find mean pixel value of each channel
-    % R_mean = mean2(R);
-    % G_mean= mean2(G);
-    % B_mean = mean2(B);
-    % %Compare Averages to see which channels are close to each other
-    % dRG = abs(R_mean-G_mean);
-    % dRB = abs(R_mean-B_mean);
-    % dGB = abs(G_mean-B_mean);
-    % %Get the ratio between the average difference in means and the difference
-    % %of the other 2 channels
-    % R_mean_score = abs(((dRG + dRB)/2) / dGB)
-    % G_mean_score = abs(((dRG + dGB)/2) / dRB)
-    % B_mean_score = abs(((dRB + dGB)/2) / dRG)
-    % 
-    % %Need to normalize score to a percentage (needs fine tuning from 0 to 1,
-    % %this gives score from 0.33 to about 1)
-    % mean_total = R_mean_score + G_mean_score + B_mean_score;
-    % R_n_mean_score = R_mean_score /mean_total
-    % G_n_mean_score = G_mean_score /mean_total
-    % B_n_mean_score = B_mean_score /mean_total
 
-    % %Median test:
-    % R_med = median(R(:));
-    % G_med = median(G(:));
-    % B_med = median(B(:));
-    % 
-    % dRG = abs(R_med - G_med);
-    % dRB = abs(R_med - B_med);
-    % dGB = abs(G_med - B_med);
-    % 
-    % R_med_score = abs(((dRG + dRB)/2) - dGB)
-    % G_med_score = abs(((dRG + dGB)/2) - dRB)
-    % B_med_score = abs(((dRB + dGB)/2) - dRG)
-    % 
-    %Standard deviation test: 
-    % R_std = std2(R);  G_std = std2(G);  B_std = std2(B);
-    % 
-    % sRG = abs(R_std - G_std);
-    % sRB = abs(R_std - B_std);
-    % sGB = abs(G_std - B_std);
-    % 
-    % R_std_score = abs(((sRG + sRB)/2) - sGB)
-    % G_std_score = abs(((sRG + sGB)/2) - sRB)
-    % B_std_score = abs(((sRB + sGB)/2) - sRG)
-    % 
-    % total = R_std_score + G_std_score + B_std_score;
-    % R_n_std_score = R_std_score * 2
-    % G_n_std_score = G_std_score * 2
-    % B_n_std_score = B_std_score * 2
-
-    % R_hist_analysis_score = .4*R_n_std_score+.6*R_n_mean_score
-    % G_hist_analysis_score = .4*G_n_std_score+.6*G_n_mean_score
-    % B_hist_analysis_score = .4*B_n_std_score+.6*B_n_mean_score
-    %Histogram anaylsis:
-
+    %Histogram analysis:
+    %Shape Test:
+    % Compares the shape of the histograms by normalizing them and then
+    % finding their difference.
+    
+    % Gets normalized histogram of all channels (sum of histogram = 1)
     hR = imhist(R)/ numel(R);
     hG = imhist(G)/ numel(G);
     hB = imhist(B)/ numel(B);
-    disp(hR)
+
+    % Sums the difference in histograms and normalizes it 
     dRG = sum(abs(hR - hG)) /2;
     dRB = sum(abs(hR - hB)) /2;
     dGB = sum(abs(hG - hB)) /2;
-
+    % Calculates the average difference per channel
     R_hist_analysis_diff = (dRG + dRB) / 2;
     G_hist_analysis_diff = (dRG + dGB) / 2;
     B_hist_analysis_diff = (dRB + dGB) / 2;
+    %Takes those differences and puts them into a ratio. The total of all
+    %ratio channels equals 1.
     hist_analysis_total = R_hist_analysis_diff + G_hist_analysis_diff + B_hist_analysis_diff
     R_n_hist_analysis_diff = R_hist_analysis_diff / hist_analysis_total
     G_n_hist_analysis_diff = G_hist_analysis_diff / hist_analysis_total
     B_n_hist_analysis_diff = B_hist_analysis_diff / hist_analysis_total
-   
-    % R_hist_analysis_score = .75*R_hist_analysis_diff_score+.25*R_n_mean_score
-    % G_hist_analysis_score = .75*G_hist_analysis_diff_score+.25*G_n_mean_score
-    % B_hist_analysis_score = .75*B_hist_analysis_diff_score+.25*B_n_mean_score
+    
+    %Spike test: 
+    % Takes the Mode of the histogram and compares it with the
+    %top 20 pixel values in a channel. Since Manipulated channels tend to
+    %have higher spikes it works well as a variable to find edited channels 
+    
+    %Saves all of the histogram values for each channel and the bins the belong to in the
+    %histogram.
     [countsR, binsR] = imhist(R);
-    [maxCountR, bin_indexR] = maxk(countsR,20);
-    R_spike = maxCountR(1) / mean(maxCountR(2:20))
-
     [countsG, binsG] = imhist(G);
-    [maxCountG, bin_indexG] = maxk(countsG,20);
-    G_spike = maxCountG(1) / mean(maxCountG(2:20))
-
     [countsB, binsB] = imhist(B);
-    [maxCountB, bin_indexB] = maxk(countsB,20);
-    B_spike = maxCountB(1) / mean(maxCountB(2:20));
-    total_spike_score = R_spike + G_spike + B_spike;
 
+    %Saves the max 20  of each channel and their index in separate values
+    [maxCountR, bin_indexR] = maxk(countsR,20);
+    [maxCountG, bin_indexG] = maxk(countsG,20);
+    [maxCountB, bin_indexB] = maxk(countsB,20);
+    
+    %Gets the ratio of the number of pixels in the highest value in the
+    %histogram and the other top 20 values averaged for each channel.
+    R_spike = maxCountR(1) / mean(maxCountR(2:20));
+    G_spike = maxCountG(1) / mean(maxCountG(2:20));
+    B_spike = maxCountB(1) / mean(maxCountB(2:20));
+
+    %Normalizes the score so the score of each channel sums to 1.
+    total_spike_score = R_spike + G_spike + B_spike;
     R_spike_score = R_spike / total_spike_score
     G_spike_score = G_spike / total_spike_score
     B_spike_score = B_spike / total_spike_score 
@@ -95,7 +57,8 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
     R_hist_analysis_score = R_n_hist_analysis_diff*.4 + R_spike_score*.6
     G_hist_analysis_score = G_n_hist_analysis_diff*.4 + G_spike_score*.6
     B_hist_analysis_score = B_n_hist_analysis_diff*.4 + B_spike_score*.6
-    %Noise Test: (seems useless in these test cases)
+
+    %Noise Test: (seems useless in these test cases and need to fix this test)
     
     gaussian_kernel = fspecial('gaussian', [3 3],1);
     R_denoise = imfilter(R,gaussian_kernel,"replicate");
@@ -122,7 +85,8 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
     G_Confidence = max(G_n_noise_score,G_hist_analysis_score);
     B_Confidence = max(B_n_noise_score,B_hist_analysis_score);
     
-    
+    %Compares Confidence values to determine which channel is most likely
+    %to be tampered with and return it with the correct confidence score.
     if(R_Confidence > G_Confidence && R_Confidence > B_Confidence)
        manipulated_channel =  'R';
        confidence = R_Confidence;

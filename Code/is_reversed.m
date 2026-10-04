@@ -25,8 +25,8 @@ function result = is_reversed(manipulated,ref1,ref2)
     
 
     % temp
-    figure,imshow(shadows);
-    figure,imshow(highlights);
+    %figure,imshow(shadows);
+    %figure,imshow(highlights);
     
 
     result = good_points<inverted_points;

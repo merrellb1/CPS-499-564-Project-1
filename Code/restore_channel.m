@@ -12,8 +12,10 @@ function restored_channel = restore_channel(manipulated, ref1, ref2)
         
         % try gaussian filter to smooth out differences
         sigma = 5;
-        dif1_smooth = imgaussfilt(dif1,sigma);
-        dif2_smooth = imgaussfilt(dif2,sigma);
+        k = 2*ceil(3*sigma)+1;
+        gaussian_kernel = fspecial('gaussian', [k k], sigma);
+        dif1_smooth = imfilter(dif1,gaussian_kernel,'replicate');
+        dif2_smooth = imfilter(dif2,gaussian_kernel,'replicate');
         
         % solutions
         sol1 = dif1_smooth + ref1;

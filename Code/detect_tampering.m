@@ -1,6 +1,6 @@
 function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
 
-    % Histogram analysis:
+    %Histogram analysis:
     % Shape Test:
     % Compares the shape of the histograms by normalizing them and then
     % finding their difference.
@@ -20,10 +20,10 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
     B_hist_analysis_diff = (dRB + dGB) / 2;
     % Takes those differences and puts them into a ratio. The total of all
     %ratio channels equals 1.
-    hist_analysis_total = R_hist_analysis_diff + G_hist_analysis_diff + B_hist_analysis_diff
-    R_n_hist_analysis_diff = R_hist_analysis_diff / hist_analysis_total
-    G_n_hist_analysis_diff = G_hist_analysis_diff / hist_analysis_total
-    B_n_hist_analysis_diff = B_hist_analysis_diff / hist_analysis_total
+    hist_analysis_total = R_hist_analysis_diff + G_hist_analysis_diff + B_hist_analysis_diff;
+    R_n_hist_analysis_diff = R_hist_analysis_diff / hist_analysis_total;
+    G_n_hist_analysis_diff = G_hist_analysis_diff / hist_analysis_total;
+    B_n_hist_analysis_diff = B_hist_analysis_diff / hist_analysis_total;
     
     % Spike test: 
     % Takes the Mode of the histogram and compares it with the
@@ -49,17 +49,17 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
 
     % Normalizes the score so the score of each channel sums to 1.
     total_spike_score = R_spike + G_spike + B_spike;
-    R_spike_score = R_spike / total_spike_score
-    G_spike_score = G_spike / total_spike_score
-    B_spike_score = B_spike / total_spike_score 
+    R_spike_score = R_spike / total_spike_score;
+    G_spike_score = G_spike / total_spike_score;
+    B_spike_score = B_spike / total_spike_score;
 
     % Arbitrary weights added to hist analysis score
-    R_hist_analysis_score = R_n_hist_analysis_diff*.5 + R_spike_score*.5
-    G_hist_analysis_score = G_n_hist_analysis_diff*.5 + G_spike_score*.5
-    B_hist_analysis_score = B_n_hist_analysis_diff*.5 + B_spike_score*.5
+    R_hist_analysis_score = R_n_hist_analysis_diff*.5 + R_spike_score*.5;
+    G_hist_analysis_score = G_n_hist_analysis_diff*.5 + G_spike_score*.5;
+    B_hist_analysis_score = B_n_hist_analysis_diff*.5 + B_spike_score*.5;
 
-    % Noise Test: (seems useless in these test cases and need to fix this test)
-    
+    % Noise Test: 
+    % Applies gaussian filter to each channel
     gaussian_kernel = fspecial('gaussian', [7 7],1.5);
     R_denoise = imfilter(R,gaussian_kernel,"replicate");
     G_denoise = imfilter(G,gaussian_kernel,"replicate");
@@ -72,16 +72,16 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
     G_noise_score = std2(G - G_denoise);
     B_noise_score = std2(B - B_denoise);
     
-    % Normalize noise score (need to find a way to standardize noise score)
+    % Normalize noise score 
     total_noise_score = R_noise_score + G_noise_score + B_noise_score;
-    R_n_noise_score = R_noise_score / total_noise_score
-    G_n_noise_score = G_noise_score / total_noise_score
-    B_n_noise_score = B_noise_score / total_noise_score
+    R_n_noise_score = R_noise_score / total_noise_score;
+    G_n_noise_score = G_noise_score / total_noise_score;
+    B_n_noise_score = B_noise_score / total_noise_score;
    
     % Each test commits 1/3 to the total confidence score
-    R_Confidence = R_hist_analysis_score * (2/3) + R_n_noise_score * (1/3)
-    G_Confidence = G_hist_analysis_score * (2/3) + G_n_noise_score * (1/3)
-    B_Confidence = B_hist_analysis_score * (2/3) + B_n_noise_score * (1/3)
+    R_Confidence = R_hist_analysis_score * (2/3) + R_n_noise_score * (1/3);
+    G_Confidence = G_hist_analysis_score * (2/3) + G_n_noise_score * (1/3);
+    B_Confidence = B_hist_analysis_score * (2/3) + B_n_noise_score * (1/3);
     
     % Compares Confidence values to determine which channel is most likely
     %to be tampered with and return it with the correct confidence score.

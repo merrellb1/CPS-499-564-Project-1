@@ -3,7 +3,7 @@ function restored_channel = restore_channel(manipulated, ref1, ref2)
     ref1 = double(ref1);
     ref2 = double(ref2);
     
-    if is_reversed(manipulated,ref1,ref2)
+    if is_inverted(manipulated,ref1,ref2)
         restored_channel = 1-manipulated;
     else
         % Differences between bad channel and good channels

@@ -1,4 +1,4 @@
-function result = is_reversed(manipulated,ref1,ref2)
+function result = is_inverted(manipulated,ref1,ref2)
     % mean and standard dev of good channels and bad one
     m = mean(ref1(:))/2 + mean(ref2(:))/2;
     s = std(ref1(:))/2 + std(ref2(:))/2;

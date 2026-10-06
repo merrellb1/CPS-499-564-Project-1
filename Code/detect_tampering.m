@@ -78,7 +78,7 @@ function [ manipulated_channel , confidence ] = detect_tampering (R,G, B)
     G_n_noise_score = G_noise_score / total_noise_score;
     B_n_noise_score = B_noise_score / total_noise_score;
    
-    % Each test commits 1/3 to the total confidence score
+    % Each test contributes 1/3 to the total confidence score
     R_Confidence = R_hist_analysis_score * (2/3) + R_n_noise_score * (1/3);
     G_Confidence = G_hist_analysis_score * (2/3) + G_n_noise_score * (1/3);
     B_Confidence = B_hist_analysis_score * (2/3) + B_n_noise_score * (1/3);

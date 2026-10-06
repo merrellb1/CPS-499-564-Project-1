@@ -6,7 +6,7 @@ clc;
 
 
 % reading images
-n = "10"; % image number 1-10
+n = "1"; % image number 1-10
 img1r = im2double(imread("RGB Data\RGB Data\"+n+"_HW1_1.jpg"));
 img1g = im2double(imread("RGB Data\RGB Data\"+n+"_HW1_2.jpg"));
 img1b = im2double(imread("RGB Data\RGB Data\"+n+"_HW1_3.jpg"));
